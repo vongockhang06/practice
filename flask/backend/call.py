@@ -24,5 +24,6 @@ params={
 #Reading API documentation for more details
 
 response=requests.get(url=url,params=params)
-data=response.json()
-print(data)
+data=response.json()['data']
+with open('taichung_weather.json',mode='w') as file:
+    json.dump(data,file,indent=4,ensure_ascii=False)
