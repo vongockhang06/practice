@@ -25,3 +25,4 @@ TestResults.xml
 .flask
 .env
 *.json
+*.csv
