@@ -26,3 +26,5 @@ TestResults.xml
 .env
 *.json
 *.csv
+*.log
+data.log
