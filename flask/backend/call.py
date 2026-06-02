@@ -27,9 +27,13 @@ params={
 #Reading API documentation for more details
 try:
     response=requests.get(url=url,params=params)
+    n=response.status_code
+    response.raise_for_status()
     data=response.json()
-    with open('taichung_weather.json',mode='a') as file:
+    with open('taichung_weather.json',mode='w') as file:
         json.dump(data,file,indent=4,ensure_ascii=False)
         logging.info(f'file is successfully written')
-except:
-    logging.error(f'Failed to write file')
+except requests.exceptions.RequestException as net_err:
+    logging.error(f"Network error/ fail to call API: {net_err}")
+except Exception as e:
+    logging.error(f"Error: {e}")
