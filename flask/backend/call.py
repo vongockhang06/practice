@@ -27,7 +27,6 @@ params={
 #Reading API documentation for more details
 try:
     response=requests.get(url=url,params=params)
-    n=response.status_code
     response.raise_for_status()
     data=response.json()
     with open('taichung_weather.json',mode='w') as file:
