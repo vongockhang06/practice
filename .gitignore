@@ -28,3 +28,6 @@ TestResults.xml
 *.csv
 *.log
 data.log
+
+__pycache__/
+*.pyc
