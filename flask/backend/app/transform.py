@@ -24,37 +24,35 @@ logging.basicConfig(
 try:
     file_name='all_cities_weather.json'
     df= pd.read_json(file_name)
-    temp_df = df.drop(columns=['timezone','timezone_offset','prev','next'])
-    lat_val = float(temp_df['lat'].iloc[0])
-    lon_val = float(temp_df['lon'].iloc[0])
-    city = session.query(TwCities.city_name)\
-                  .filter(TwCities.latitude == round(lat_val, 4), 
-                          TwCities.longitude == round(lon_val, 4))\
-                  .scalar()
-    temp_df = temp_df.drop(columns=['lat','lon'])
-    temp_df['city']=city
+    temp_df = df.drop(columns=['timezone','timezone_offset','prev','next','lat','lon'])
     ls=[]
-    for i in range(len(temp_df)):   
+    for i in range(len(temp_df)):#per city   
         row=temp_df.iloc[i]
         data=row['data']
-        timestamp=data['dt']
-        date_time_obj = datetime.fromtimestamp(timestamp)
+        city=row['city_name']
+        for j in range(len(data)): #per day
+            day_data=data[j]
+            timestamp=day_data['dt']
+            date_time_obj = datetime.fromtimestamp(timestamp)
     
         #Extract necessary info
-        forecast_date =date_time_obj.date()
-        city=row['city']
-        temp = row['data']
-        temp2=temp['temp']
+            forecast_date =date_time_obj.date()
+            temp2=day_data['temp']
         
-        temp_day=temp2['day']
-        temp_min=temp2['min']
-        temp_max=temp2['max']
-        
-        pressure=temp['pressure']
-        humidity=temp['humidity']
-        rain_volume=temp.get('rain',0.0)
-        temp_list=[forecast_date,city,temp_day,temp_min,temp_max,pressure,humidity,rain_volume]
-        ls.append(temp_list)
+            temp_day=temp2['day']
+            temp_min=temp2['min']
+            temp_max=temp2['max']
+            
+            pressure=day_data['pressure']
+            humidity=day_data['humidity']
+            raw_rain = day_data.get('rain', 0.0)
+            if isinstance(raw_rain, dict):
+                # Nếu rain có dạng {"1h": 1.5}, câu lệnh dưới đây sẽ bóc tách ra con số 1.5
+                rain_volume = float(list(raw_rain.values())[0])
+            else:
+                rain_volume = float(raw_rain)
+            temp_list=[forecast_date,city,temp_day,temp_min,temp_max,pressure,humidity,rain_volume]
+            ls.append(temp_list)
         
     cols=['forecast_date','city_name','temp_day','temp_min',
           'temp_max','pressure','humidity','rain_volume']    
