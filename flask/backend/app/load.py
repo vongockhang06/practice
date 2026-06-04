@@ -1,4 +1,3 @@
-import logging
 import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -6,13 +5,9 @@ import pandas as pd
 from sqlalchemy.dialects.postgresql import insert
 from models import WeatherDailyForecasts
 from config import get_db_session
-
+from utils import setup_pipeline_logging
 session=get_db_session()
-logging.basicConfig(
-    filename='load.log',
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s'
-)
+logger=setup_pipeline_logging()
 try:
     df = pd.read_json('cleaned_weather.json')
     records = df.to_dict(orient='records')
@@ -34,9 +29,9 @@ try:
         )
         session.execute(upsert_stmt, records)
         session.commit()
-    logging.info('Loading into database successfully')
+    logger.info('Loading into database successfully')
 except Exception as e:
     session.rollback()
-    logging.error(f'Error: {e}')
+    logger.error(f'Error: {e}')
 finally:
     session.close()

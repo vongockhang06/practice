@@ -3,17 +3,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import pandas as pd
 import json
-import logging
 from config import get_db_session
 from models import TwCities,WeatherDailyForecasts
+from utils import setup_pipeline_logging
 #========================================
 session=get_db_session()
 #========================================
-logging.basicConfig(
-    filename='transform.log',
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s"
-)
+logger=setup_pipeline_logging()
 
 try:
     file_name='all_cities_weather.json'
@@ -54,13 +50,13 @@ try:
     new_df['forecast_date'] = new_df['forecast_date'].astype(str)
 except Exception as e:
     session.rollback()
-    logging.error(f"\nError message: {e}")
+    logger.error(f"\nError message: {e}")
 finally:
     session.close()
     
 try:
     new_df.to_json('cleaned_weather.json', orient='records', 
                    date_format='iso', indent=4, force_ascii=False)
-    logging.info('write file successfully')
+    logger.info('write file successfully')
 except:
-    logging.error('Cannot write file')
+    logger.error('Cannot write file')
