@@ -7,6 +7,7 @@ from datetime import date,datetime
 from models import TwCities
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from config import *
 #print("Import successfully") #For checking
 load_dotenv()
 
@@ -16,14 +17,9 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s"
 )
-USER_NAME=os.getenv('USER_NAME')
-DB_PASSWORD=os.getenv('DB_PASSWORD')
-API_KEY=os.getenv("API_KEY")
-#print(API_KEY) #For checking
-url = "https://api.openweathermap.org/data/4.0/onecall/timeline/1day"
-engine=create_engine(f'postgresql+psycopg2://{USER_NAME}:{DB_PASSWORD}@localhost:5432/tw_weather_db')
-Session=sessionmaker(bind=engine)
-session=Session()
+url = get_url_1day()
+session=get_db_session()
+API_KEY=get_API_KEY()
 try:
     cities=session.query(TwCities).all()
     all_cities_weather=[]

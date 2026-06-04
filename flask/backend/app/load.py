@@ -5,22 +5,14 @@ from sqlalchemy.orm import sessionmaker
 import pandas as pd
 from sqlalchemy.dialects.postgresql import insert
 from models import WeatherDailyForecasts
-from dotenv import load_dotenv
-import os
+from config import get_db_session
 
-load_dotenv()
-USER_NAME=os.getenv('USER_NAME')
-DB_PASSWORD=os.getenv('DB_PASSWORD')
-engine=create_engine(f'postgresql+psycopg2://{USER_NAME}:{DB_PASSWORD}@localhost:5432/tw_weather_db')
-Session=sessionmaker(bind=engine)
-session=Session()
+session=get_db_session()
 logging.basicConfig(
     filename='load.log',
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] %(message)s'
 )
-
-
 try:
     df = pd.read_json('cleaned_weather.json')
     records = df.to_dict(orient='records')
