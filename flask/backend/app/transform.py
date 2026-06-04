@@ -22,7 +22,7 @@ logging.basicConfig(
 )
 
 try:
-    file_name='taichung_weather.json'
+    file_name='all_cities_weather.json'
     df= pd.read_json(file_name)
     temp_df = df.drop(columns=['timezone','timezone_offset','prev','next'])
     lat_val = float(temp_df['lat'].iloc[0])
