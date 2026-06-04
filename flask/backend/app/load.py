@@ -40,9 +40,8 @@ try:
                 'rain_volume': stmt.excluded.rain_volume
             }
         )
-        
-    session.execute(upsert_stmt, records)
-    session.commit()
+        session.execute(upsert_stmt, records)
+        session.commit()
     logging.info('Loading into database successfully')
 except Exception as e:
     session.rollback()
