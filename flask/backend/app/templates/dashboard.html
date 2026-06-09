@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taiwan Weather Monitoring Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans antialiased min-h-screen">
+
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8 border-b border-gray-800 pb-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold tracking-tight text-white flex items-center gap-2">
+                    🌤️ Taiwan Weather Metrics
+                </h1>
+                <p class="text-sm text-gray-400 mt-1">Real-time telemetry pipeline from OpenWeather API</p>
+            </div>
+            <span class="bg-green-500/10 text-green-400 text-xs px-3 py-1 rounded-full border border-green-500/20 font-medium animate-pulse">
+                Live Data Connected
+            </span>
+        </header>
+
+        <div class="bg-gray-800 p-6 rounded-xl border border-gray-700/50 shadow-xl mb-6">
+            <form method="GET" action="/" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                
+                <div>
+                    <label for="city" class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Select City</label>
+                    <select id="city" name="city" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 transition-colors">
+                        <option value="">All Cities</option>
+                        {% for city in city_list %}
+                            <option value="{{ city }}" {% if selected_city == city %}selected{% endif %}>{{ city }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="date" class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Select Forecast Date</label>
+                    <input type="date" id="date" name="date" value="{{ selected_date }}"
+                           class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 transition-colors">
+                </div>
+
+                <div class="flex gap-2">
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 px-4 rounded-lg transition-colors shadow-lg shadow-blue-600/20">
+                        🔍 Filter Data
+                    </button>
+                    {% if selected_city or selected_date %}
+                        <a href="/" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-medium py-2.5 px-4 rounded-lg transition-colors text-center">
+                            Reset
+                        </a>
+                    {% endif %}
+                </div>
+
+            </form>
+        </div>
+
+        <div class="bg-gray-800 rounded-xl shadow-xl border border-gray-700/50 overflow-hidden">
+            <div class="p-6 border-b border-gray-700/50 bg-gray-800/50 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-200">Historical & Forecast Timeline</h2>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-900/50 text-gray-400 text-xs uppercase tracking-wider border-b border-gray-700">
+                            <th class="py-4 px-6">Date</th>
+                            <th class="py-4 px-6">City</th>
+                            <th class="py-4 px-6 text-center">Day Temp</th>
+                            <th class="py-4 px-6 text-center">Min / Max</th>
+                            <th class="py-4 px-6 text-center">Pressure</th>
+                            <th class="py-4 px-6 text-center">Humidity</th>
+                            <th class="py-4 px-6 text-center">Rain Volume</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-700 text-sm">
+                        {% if forecasts %}
+                            {% for record in forecasts %}
+                            <tr class="hover:bg-gray-700/30 transition-colors duration-150">
+                                <td class="py-4 px-6 font-medium text-blue-400 whitespace-nowrap">
+                                    {{ record.forecast_date | format_date }}
+                                </td>
+                                <td class="py-4 px-6 font-semibold text-white">
+                                    {{ record.city_name }}
+                                </td>
+                                <td class="py-4 px-6 text-center text-lg font-bold text-amber-400">
+                                    {{ record.temp_day }}°C
+                                </td>
+                                <td class="py-4 px-6 text-center text-gray-300">
+                                    <span class="text-blue-300">{{ record.temp_min }}°</span> 
+                                    <span class="text-gray-500">/</span> 
+                                    <span class="text-rose-400">{{ record.temp_max }}°</span>
+                                </td>
+                                <td class="py-4 px-6 text-center font-mono text-gray-300">
+                                    {{ record.pressure }} hPa
+                                </td>
+                                <td class="py-4 px-6 text-center">
+                                    <span class="px-2.5 py-1 rounded-md text-xs font-semibold bg-cyan-950 text-cyan-400 border border-cyan-800/30">
+                                        {{ record.humidity }}%
+                                    </span>
+                                </td>
+                                <td class="py-4 px-6 text-center">
+                                    {% if record.rain_volume > 0 %}
+                                        <span class="px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-950 text-blue-400 border border-blue-800/30">
+                                            💧 {{ record.rain_volume }} mm
+                                        </span>
+                                    {% else %}
+                                        <span class="text-gray-600">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center py-12 text-gray-500 bg-gray-800/20">
+                                    No data found matching the selected filters.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <footer class="mt-8 text-center text-xs text-gray-600">
+            PostgreSQL DB Source Server • SQLAlchemy Core Connection ORM
+        </footer>
+    </div>
+
+</body>
+</html>
